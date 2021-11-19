@@ -6,6 +6,7 @@ static ring_buffer_421_t buffer;
 static sem_t mutex;
 static sem_t fill_count;
 static sem_t empty_count;
+static int digit;
 
 long init_buffer_421(void) {
 	// Note: You will need to initialize semaphores in this function.
@@ -33,6 +34,7 @@ long init_buffer_421(void) {
 	buffer.write = node;
 	buffer.length = 0;
 
+	digit = 0;
 	// Initialize your semaphores here.
 	// TODO
 
@@ -94,4 +96,52 @@ void print_semaphores(void) {
 	sem_getvalue(&empty_count, &value);
 	printf("sem_t empty_count = %d\n", value);
 	return;
+}
+
+void producer(void) {
+	pthread_t = prod_thread;
+	//wait 0-100 milliseconds. usleep counts in microseconds
+	usleep((rand() % 101) * 1000);
+	//set data to be enqueued
+	char* data = malloc(DATA_LENGTH * sizeof(char));
+	for(int i = 0; i < DATA_LENGTH; i++)
+		data[i] = digit+'0'; 
+	//increment digit. variable should be stored gloablly
+	digit += 1;
+	if(digit > 9)
+		digit = 0;
+	//print status update
+	printf("::Enqueueing element into buffer. ::\n");
+	for(int i = 0; i < 10; i++)
+		printf("%c", data[0]);
+	printf("...\n");
+	//call new thread to enqueue data
+	pthread_create(&prod_thread, NULL, &enqueue_buffer_421, NULL);
+	//TODO: figure out if something goes in between this
+	//join basically waits for prod_thread to finish, not sure if this is how concurrency is implemented
+	pthread_join(prod_thread);
+	//does following code belong in enqueue or here?
+	int queue_len;
+	sem_getvalue(&fill_count, &queue_len);
+	printf("%d items in buffer.\n", queue_len);
+}
+
+void consumer(void) {
+	pthread_t = cons_thread;
+	//wait 0-100 milliseconds. usleep counts in microseconds
+	usleep((rand() % 101) * 1000);
+	//set data to return value of dequeue
+	char* data = pthread_create(&cons_thread, NULL, &dequeue_buffer_421, NULL);
+	//TODO: figure out if something goes in between this
+	//also figure out what happens if dequeue returns an error
+	//join basically waits for prod_thread to finish, not sure if this is how concurrency is implemented
+	pthread_join(cons_thread);
+	printf(":: Dequeueing element from buffer. ::\n");
+	for(int i = 0; i < 10; i++)
+		printf("%c",data[i])
+	printf("...\n");
+	//does following code belong in enqueue or here?
+	int queue_len;
+	sem_getvalue(&fill_count, &queue_len);
+	printf("%d items in buffer.\n", queue_len);
 }

@@ -7,8 +7,10 @@ extern "C" {
 
 #ifndef __KERNEL__
 #include <semaphore.h>
+#include <pthread.h>
 #else
 #include <linux/semaphore.h>
+#include <linux/pthread.h>
 #endif
 
 #define SIZE_OF_BUFFER 20
@@ -31,6 +33,8 @@ long enqueue_buffer_421(char *data);
 long dequeue_buffer_421(char *data);
 long delete_buffer_421(void);
 void print_semaphores(void);
+void producer(void);
+void consumer(void);
 #endif
 
 #ifdef __cplusplus

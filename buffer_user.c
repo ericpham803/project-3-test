@@ -1,5 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+
+#include <semaphore.h>
+#include <pthread.h>
 #include "buffer.h"
 
 static ring_buffer_421_t buffer;
@@ -98,8 +103,18 @@ void print_semaphores(void) {
 	return;
 }
 
+//method to call the producer thread
 void producer(void) {
-	pthread_t = prod_thread;
+	pthread_t thread;
+	//call new thread to enqueue data
+	pthread_create(&thread, NULL, prod_thread, NULL);
+	//TODO: figure out if something goes in between this
+	//join basically waits for prod_thread to finish, not sure if this is how concurrency is implemented
+	pthread_join(thread, NULL);
+}
+
+//threads called by pthread have to be void* [name](void*) so uhh
+void *prod_thread(void* arg) {
 	//wait 0-100 milliseconds. usleep counts in microseconds
 	usleep((rand() % 101) * 1000);
 	//set data to be enqueued
@@ -115,33 +130,45 @@ void producer(void) {
 	for(int i = 0; i < 10; i++)
 		printf("%c", data[0]);
 	printf("...\n");
-	//call new thread to enqueue data
-	pthread_create(&prod_thread, NULL, &enqueue_buffer_421, NULL);
-	//TODO: figure out if something goes in between this
-	//join basically waits for prod_thread to finish, not sure if this is how concurrency is implemented
-	pthread_join(prod_thread);
+	enqueue_buffer_421(data);
 	//does following code belong in enqueue or here?
-	int queue_len;
-	sem_getvalue(&fill_count, &queue_len);
+	int queue_len = 0; //test value 
+	//sem_getvalue(&fill_count, &queue_len);
 	printf("%d items in buffer.\n", queue_len);
+	free(data);
+	return NULL;
+	//pthread_exit(NULL);
 }
 
+//method to call the consumer thread
 void consumer(void) {
-	pthread_t = cons_thread;
-	//wait 0-100 milliseconds. usleep counts in microseconds
-	usleep((rand() % 101) * 1000);
-	//set data to return value of dequeue
-	char* data = pthread_create(&cons_thread, NULL, &dequeue_buffer_421, NULL);
+	pthread_t thread;
+	
+	pthread_create(&thread, NULL, cons_thread, NULL);
 	//TODO: figure out if something goes in between this
 	//also figure out what happens if dequeue returns an error
 	//join basically waits for prod_thread to finish, not sure if this is how concurrency is implemented
-	pthread_join(cons_thread);
+	pthread_join(thread, NULL);
+}
+
+//threads called by pthread have to be void* [name](void*) so uhh
+void *cons_thread(void* arg) {
+	//wait 0-100 milliseconds. usleep counts in microseconds
+	usleep((rand() % 101) * 1000);
+	//set data to return value of dequeue
+	char* data = malloc(DATA_LENGTH * sizeof(char));
+
+	dequeue_buffer_421(data);
+
 	printf(":: Dequeueing element from buffer. ::\n");
 	for(int i = 0; i < 10; i++)
-		printf("%c",data[i])
+		printf("%c",data[i]);
 	printf("...\n");
 	//does following code belong in enqueue or here?
-	int queue_len;
-	sem_getvalue(&fill_count, &queue_len);
+	int queue_len = 3; //test value
+	//sem_getvalue(&fill_count, &queue_len);
 	printf("%d items in buffer.\n", queue_len);
+	free(data);
+	return NULL;
+	//pthread_exit(NULL);
 }

@@ -46,7 +46,7 @@ void* consumer(void* value){
 
 int main(){
     pthread_t enqueue,dequeue;
-    sem_init(&mutex,0,1);y
+    sem_init(&mutex,0,1);
     init_buffer_421();
     int amount = 1000;
     //Create Threads

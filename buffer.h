@@ -7,10 +7,8 @@ extern "C" {
 
 #ifndef __KERNEL__
 #include <semaphore.h>
-#include <pthread.h>
 #else
 #include <linux/semaphore.h>
-#include <linux/pthread.h>
 #endif
 
 #define SIZE_OF_BUFFER 20

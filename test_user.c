@@ -1,5 +1,4 @@
-#include <linux/kernel.h>
-#include <linux/syscalls.h>
+#include "buffer.h"
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
@@ -7,26 +6,8 @@
 #include <stdlib.h>
 #include <semaphore.h>
 
-#define __NR_init_buffer_421 442
-#define __NR_enqueue_buffer_421 443
-#define __NR_dequeue_buffer_421 444
-#define __NR_delete_buffer_421 445
-
 int items = 0;
 static sem_t mutex;
-
-long init_buffer_421(void) {
-    return syscall(__NR_init_buffer_421);
-}
-long enqueue_buffer_421(int i) {
-    return syscall(__NR_enqueue_buffer_421, i);
-}
-long dequeue_buffer_421(void) {
-    return syscall(__NR_dequeue_buffer_421);
-}
-long delete_buffer_421(void) {
-    return syscall(__NR_delete_buffer_421);
-}
 
 //Producer
 void* producer(void* value){
@@ -65,16 +46,16 @@ void* consumer(void* value){
 }
 
 int main(){
-    pthread_t enqueue,dequeue;
+    pthread_t enqueue_thread,dequeue_thread;
     sem_init(&mutex,0,1);
     init_buffer_421();
-    int iter_count = 100000;
+    int iter_count = 1000;
     //Create Threads
-    pthread_create(&enqueue,NULL,producer,&iter_count);
-    pthread_create(&dequeue,NULL,consumer,&iter_count);
+    pthread_create(&enqueue_thread,NULL,producer,&iter_count);
+    pthread_create(&dequeue_thread,NULL,consumer,&iter_count);
     //Wait for Threads to finish
-    pthread_join(enqueue,NULL);
-    pthread_join(dequeue,NULL);
+    pthread_join(enqueue_thread,NULL);
+    pthread_join(dequeue_thread,NULL);
     delete_buffer_421();
     return 0;
 }

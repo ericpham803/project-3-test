@@ -1,5 +1,5 @@
 # Add the names of your .c files from your assignment here.
-SRCS = buffer_user.c test.c
+SRCS = buffer_user.c test_user.c
 
 # This line is the name of the program you are building
 BIN = buffer_user

@@ -49,7 +49,7 @@ int main(){
     pthread_t enqueue_thread,dequeue_thread;
     sem_init(&mutex,0,1);
     init_buffer_421();
-    int iter_count = 1000;
+    int iter_count = 100000;
     //Create Threads
     pthread_create(&enqueue_thread,NULL,producer,&iter_count);
     pthread_create(&dequeue_thread,NULL,consumer,&iter_count);
